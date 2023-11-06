@@ -1,0 +1,62 @@
+/* Uploading the dataset */
+FILENAME hw '/home/u63453458/New Folder/HW1A.xlsx';  
+PROC IMPORT DATAFILE=hw  
+     OUT=calc  
+     DBMS=xlsx REPLACE;
+     SHEET="Sheet2";
+RUN;
+
+PROC REG DATA=calc;
+	MODEL GPA = ACT_Score;
+	OUTPUT OUT=calcout PREDICTED=yhat RESIDUAL=e;
+RUN;
+
+data cal_new;
+   set calcout;
+   e_squared = e**2;
+run;
+
+
+proc reg data=cal_new;
+	model e_squared = ACT_Score / alpha=0.05;;
+	ods select ANOVA;
+run;
+
+proc rank data=cal_new out=enrm normal=blom;
+   var ACT_Score;
+   ranks enrm;
+   label enrm = "normal scores";
+run;
+
+
+
+data cal_new;
+   set cal_new;
+   set enrm;
+run;
+
+proc print data=cal_new;
+run;
+
+
+data calcnew;
+set calc; set calcout; set enrm;
+id = _n_;
+label id = 'Observation Number';
+
+proc corr data=calcnew;
+var e enrm;
+
+proc print data=enrm;
+run;
+
+proc rank normal=blom out=enrm data=calcout;
+var e;
+ranks enrm;
+label enrm = ’Normal Scores’;
+data calcnew;
+set calc; set calcout; set enrm;
+id = _n_;
+label id = ’Observation Number’;
+proc corr data=calcnew;
+var e enrm;
