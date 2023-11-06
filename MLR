@@ -1,0 +1,67 @@
+/* Uploading the dataset */
+FILENAME hw '/home/u63453458/New Folder/Projectdata.xlsx';  
+PROC IMPORT DATAFILE=hw  
+     OUT=calc  
+     DBMS=xlsx REPLACE;
+RUN;
+
+
+
+
+PROC REG DATA=calc;
+	MODEL Runs = Fifty; /* MLR */
+	OUTPUT OUT=calcout PREDICTED=yhat RESIDUAL=e;
+RUN;
+
+ods output NormalPlot=qqplot;
+proc univariate data=calcout normal;
+  var e;
+run;
+
+proc sgplot data=qqplot;
+  qqplot resid / normal(mu=estimate sigma=stddev);
+run;
+
+PROC REG DATA=calc;
+	MODEL Runs = Fifty; /* .94*/
+	OUTPUT OUT=calcout PREDICTED=yhat RESIDUAL=e;
+RUN;
+
+
+proc sgplot data=calcout;
+  scatter x=Fifty y=Runs ;
+run;
+
+PROC REG DATA=calc;
+	MODEL Runs = Century; /* .90*/
+	OUTPUT OUT=calcout PREDICTED=yhat RESIDUAL=e;
+RUN;
+
+PROC REG DATA=calc;
+	MODEL Runs = Inns;   /* .84*/
+	OUTPUT OUT=calcout PREDICTED=yhat RESIDUAL=e;
+RUN;
+
+PROC REG DATA=calc;
+	MODEL Runs =  Mat; /* .76*/
+	OUTPUT OUT=calcout PREDICTED=yhat RESIDUAL=e;
+RUN;
+
+PROC REG DATA=calc;
+	MODEL Runs = HS; /* .60 */
+	OUTPUT OUT=calcout PREDICTED=yhat RESIDUAL=e;
+RUN;
+
+PROC REG DATA=calc;
+	MODEL Runs = Out; /* .29*/
+	OUTPUT OUT=calcout PREDICTED=yhat RESIDUAL=e;
+RUN;
+
+
+
+PROC REG DATA=calc;
+	MODEL Runs = NO; /* .25*/
+	OUTPUT OUT=calcout PREDICTED=yhat RESIDUAL=e;
+RUN;
+
+
